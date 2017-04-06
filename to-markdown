@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+const getStdin = require('get-stdin')
+const toMarkdown = require('to-markdown')
+
+const stdin = getStdin().then(input => {
+  const markdown = toMarkdown(input)
+  console.log(markdown)
+})
