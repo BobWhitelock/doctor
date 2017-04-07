@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 
+import click
 import json
 import os
 import subprocess
-import sys
 import tempfile
 
 
 DOC_PATH = '/home/bob/repos/devdocs/public/docs/javascript/'
 
 
-def main():
-    arg = sys.argv[1]
-
+@click.command()
+@click.argument('search_term')
+def doctor(search_term):
     index_file = os.path.join(DOC_PATH, 'index.json')
     with open(index_file) as f:
         index = json.load(f)
 
     entries = {entry['name']: entry for entry in index['entries']}
-    entry = entries[arg]
-    print("entry:", entry)
+    entry = entries[search_term]
 
     entry_path = entry['path'].split('#')[0]
     doc_path = os.path.join(DOC_PATH, entry_path) + '.html'
@@ -31,7 +30,6 @@ def main():
             universal_newlines=True,
         )
     markdown_doc = process.stdout
-    print("markdown_doc:", markdown_doc)
 
     _, temp = tempfile.mkstemp(prefix=entry['name'] + '.', suffix='.md')
     with open(temp, 'w+') as f:
@@ -41,4 +39,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    doctor()

@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+# Setup Virtualenv.
+if [ ! -d venv ]; then
+  python3.5 -m venv venv
+fi
+
+# Install dependencies.
+set +u
+. venv/bin/activate
+set -u
+pip install -r requirements.txt
