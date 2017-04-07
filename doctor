@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from click import Choice
+from fuzzywuzzy import fuzz, process
 from pathlib import Path
 import click
 import json
@@ -25,21 +26,32 @@ def doctor(language, search_term):
     with index_file.open() as f:
         index = json.load(f)
 
-    entries = {entry['name']: entry for entry in index['entries']}
-    entry = entries[search_term]
+    index_entries = {
+        entry['name']: entry for entry in index['entries']
+    }
 
-    entry_path = entry['path'].split('#')[0]
+    matches = process.extract(
+        search_term,
+        index_entries.keys(),
+        scorer=fuzz.token_sort_ratio,
+        limit=5,
+    )
+    print("matches:", matches)
+    match_name, _ = matches[0]
+    match = index_entries[match_name]
+
+    entry_path = match['path'].split('#')[0]
     doc_path = language_docs.joinpath(entry_path).with_suffix('.html')
     with doc_path.open() as doc:
-        process = subprocess.run(
+        completed_process = subprocess.run(
             ['./to-markdown'],
             stdin=doc,
             stdout=subprocess.PIPE,
             universal_newlines=True,
         )
-    markdown_doc = process.stdout
+    markdown_doc = completed_process.stdout
 
-    _, temp = tempfile.mkstemp(prefix=entry['name'] + '.', suffix='.md')
+    _, temp = tempfile.mkstemp(prefix=match['name'] + '.', suffix='.md')
     with open(temp, 'w+') as f:
         f.write(markdown_doc)
     subprocess.run(['vim', temp])
