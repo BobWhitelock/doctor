@@ -8,6 +8,8 @@ import os
 import subprocess
 import tempfile
 
+import doc_parser
+
 DOC_PATH = Path('/home/bob/repos/devdocs/public/docs')
 
 
@@ -42,20 +44,10 @@ def doctor(language, search_term):
 
     entry_path = match['path'].split('#')[0] + '.html'
     doc_path = language_docs.joinpath(entry_path)
-    with doc_path.open() as doc:
-        completed_process = subprocess.run(
-            ['src/to-markdown'],
-            stdin=doc,
-            stdout=subprocess.PIPE,
-            universal_newlines=True,
-        )
-    markdown_doc = completed_process.stdout
+    with doc_path.open() as f:
+        doc_parts = doc_parser.parse(f)
 
-    _, temp = tempfile.mkstemp(prefix=match['name'] + '.', suffix='.md')
-    with open(temp, 'w+') as f:
-        f.write(markdown_doc)
-    subprocess.run(['vim', temp])
-    os.remove(temp)
+    click.echo('\n'.join(doc_parts))
 
 
 def process_search_term(search_term):
