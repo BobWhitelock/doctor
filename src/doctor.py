@@ -43,7 +43,7 @@ def doctor(language, search_term):
     doc_path = language_docs.joinpath(entry_path).with_suffix('.html')
     with doc_path.open() as doc:
         completed_process = subprocess.run(
-            ['./to-markdown'],
+            ['src/to-markdown'],
             stdin=doc,
             stdout=subprocess.PIPE,
             universal_newlines=True,
