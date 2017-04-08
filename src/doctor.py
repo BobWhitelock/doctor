@@ -32,7 +32,8 @@ def doctor(language, search_term):
     matches = process.extract(
         search_term,
         index_entries.keys(),
-        scorer=fuzz.token_sort_ratio,
+        scorer=fuzz.partial_ratio,
+        processor=process_search_term,
         limit=5,
     )
     print("matches:", matches)
@@ -55,3 +56,12 @@ def doctor(language, search_term):
         f.write(markdown_doc)
     subprocess.run(['vim', temp])
     os.remove(temp)
+
+
+def process_search_term(search_term):
+    """Simple processor for search term
+
+    Needed as default processor (`fuzzywuzzy.utils.full_process`) strips all
+    non-alphanumeric characters, but we want to be able to search for `==` etc.
+    """
+    return search_term.lower().strip()
