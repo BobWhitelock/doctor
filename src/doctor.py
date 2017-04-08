@@ -40,8 +40,8 @@ def doctor(language, search_term):
     match_name, _ = matches[0]
     match = index_entries[match_name]
 
-    entry_path = match['path'].split('#')[0]
-    doc_path = language_docs.joinpath(entry_path).with_suffix('.html')
+    entry_path = match['path'].split('#')[0] + '.html'
+    doc_path = language_docs.joinpath(entry_path)
     with doc_path.open() as doc:
         completed_process = subprocess.run(
             ['src/to-markdown'],
