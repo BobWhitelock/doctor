@@ -10,6 +10,8 @@ HEADER_REGEX = '^h(\d)$'
 HEADER_PREFIX = '#'
 UNORDERED_LIST_PREFIX = '-'
 
+LIST_ELEMENTS = ['ul', 'ol']
+
 
 def parse(html_doc_file):
     parsed_elements = []
@@ -19,10 +21,8 @@ def parse(html_doc_file):
         if empty_text:
             continue
 
-        if element.tag == 'ul':
-            parsed_element = parse_unordered_list(element)
-        elif element.tag == 'ol':
-            parsed_element = parse_ordered_list(element)
+        if element.tag in LIST_ELEMENTS:
+            parsed_element = parse_list_element(element)
         elif element.tag == 'pre':
             parsed_element = parse_pre(element)
         else:
@@ -76,24 +76,17 @@ def create_header_formatter(header_number):
     return formatter
 
 
-def parse_unordered_list(element):
-    parsed_element = []
+def parse_list_element(element):
+    if element.tag == 'ul':
+        prefix = lambda index: UNORDERED_LIST_PREFIX  # noqa
+    else:
+        prefix = lambda index: str(index + 1) + '.'  # noqa
 
-    for child in element.iter('li'):
-        parsed_element.append(
-            UNORDERED_LIST_PREFIX + ' ' + parse_textual_element(child)
-        )
-
-    return '\n'.join(parsed_element)
-
-
-def parse_ordered_list(element):
     parsed_element = []
 
     for index, child in enumerate(element.iter('li')):
-        item_number = str(index + 1)
         parsed_element.append(
-            item_number + '. ' + parse_textual_element(child)
+            prefix(index) + ' ' + parse_textual_element(child)
         )
 
     return '\n'.join(parsed_element)
