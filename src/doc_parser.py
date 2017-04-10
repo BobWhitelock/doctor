@@ -14,15 +14,12 @@ UNORDERED_LIST_PREFIX = '-'
 def parse(html_doc_file):
     parsed_elements = []
     for element in html.parse(html_doc_file).find('body').iterchildren():
-        header_match = re.fullmatch(HEADER_REGEX, element.tag)
 
         empty_text = element.text_content().strip() == ''
         if empty_text:
             continue
 
-        if header_match:
-            parsed_element = parse_header(element, header_match)
-        elif element.tag == 'ul':
+        if element.tag == 'ul':
             parsed_element = parse_unordered_list(element)
         elif element.tag == 'ol':
             parsed_element = parse_ordered_list(element)
@@ -37,16 +34,14 @@ def parse(html_doc_file):
     return parsed_elements
 
 
-def parse_header(element, header_match):
-    prefix = HEADER_PREFIX * int(header_match.group(1))
-    header_text = prefix + ' ' + element.text_content().strip()
-    return header(header_text)
-
-
 def parse_textual_element(element):
     parsed_element = []
 
-    if element.tag in ['strong', 'em']:
+    header_match = re.fullmatch(HEADER_REGEX, element.tag)
+    if header_match:
+        header_number = int(header_match.group(1))
+        formatter = create_header_formatter(header_number)
+    elif element.tag in ['strong', 'em']:
         formatter = strong
     elif element.tag == 'code':
         formatter = code
@@ -71,6 +66,14 @@ def parse_textual_element(element):
     element_content += tail
 
     return element_content
+
+
+def create_header_formatter(header_number):
+    def formatter(text):
+        prefix = HEADER_PREFIX * header_number
+        return header(prefix + ' ' + text)
+
+    return formatter
 
 
 def parse_unordered_list(element):

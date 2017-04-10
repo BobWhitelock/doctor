@@ -94,6 +94,11 @@ def test_parsing_nested_elements():
         [code('{} && {}'.format(strong('expr1'), strong('expr2')))]
     )
 
+    parse_test(
+        '<h2>   Heading <code> Some code </code></h2>',
+        [header('## Heading {}'.format(code('Some code')))]
+    )
+
 
 def parse_test(html, expected_parts):
     test_file = StringIO(html)
