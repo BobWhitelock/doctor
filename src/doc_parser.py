@@ -81,7 +81,8 @@ def parse_unordered_list(element):
 
     for child in element.iter('li'):
         parsed_element.append(
-            UNORDERED_LIST_PREFIX + ' ' + child.text_content().strip())
+            UNORDERED_LIST_PREFIX + ' ' + parse_textual_element(child)
+        )
 
     return '\n'.join(parsed_element)
 
@@ -92,7 +93,8 @@ def parse_ordered_list(element):
     for index, child in enumerate(element.iter('li')):
         item_number = str(index + 1)
         parsed_element.append(
-            item_number + '. ' + child.text_content().strip())
+            item_number + '. ' + parse_textual_element(child)
+        )
 
     return '\n'.join(parsed_element)
 

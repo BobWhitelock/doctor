@@ -31,18 +31,26 @@ def test_parsing_paragraph():
 
 def test_parsing_unordered_list():
     parse_test(
-        '<ul><li>First</li><li>Second</li></ul>',
+        '<ul>'
+        '<li>First</li>'
+        '<li>Second</li>'
+        '<li><em>Third is bold</em></li>'
+        '</ul>',
         [
-            '- First\n- Second'
+            '- First\n- Second\n- {}'.format(strong('Third is bold'))
         ]
     )
 
 
 def test_parsing_ordered_list():
     parse_test(
-        '<ol><li>First</li><li>Second</li></ol>',
+        '<ol>'
+        '<li>First</li>'
+        '<li>Second</li>'
+        '<li><em>Third is bold</em></li>'
+        '</ol>',
         [
-            '1. First\n2. Second'
+            '1. First\n2. Second\n3. {}'.format(strong('Third is bold'))
         ]
     )
 
