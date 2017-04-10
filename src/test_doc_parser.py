@@ -86,6 +86,15 @@ def test_parsing_empty_elements():
     )
 
 
+def test_parsing_nested_elements():
+    parse_test(
+        '<p><code>'
+        '<strong>expr1</strong> && <strong>expr2</strong>'
+        '</code></p>',
+        [code('{} && {}'.format(strong('expr1'), strong('expr2')))]
+    )
+
+
 def parse_test(html, expected_parts):
     test_file = StringIO(html)
     parsed_file_parts = parse(test_file)

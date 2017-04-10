@@ -29,7 +29,7 @@ def parse(html_doc_file):
         elif element.tag == 'pre':
             parsed_element = parse_pre(element)
         else:
-            parsed_element = parse_text(element)
+            parsed_element = parse_textual_element(element)
 
         if parsed_element:
             parsed_elements.append(parsed_element)
@@ -43,31 +43,34 @@ def parse_header(element, header_match):
     return header(header_text)
 
 
-def parse_text(element):
+def parse_textual_element(element):
     parsed_element = []
 
-    # Note: original element will be included.
-    for child in element.iter():
-        text = child.text
+    if element.tag in ['strong', 'em']:
+        formatter = strong
+    elif element.tag == 'code':
+        formatter = code
+    else:
+        formatter = lambda x: x  # noqa
 
-        # Handling empty child similar to in main `parse` function.
-        empty_child = child.text_content().strip() == ''
-        if empty_child:
-            pass
-        elif child.tag in ['strong', 'em']:
-            text = strong(text)
-        elif child.tag == 'code':
-            text = code(text)
+    text = element.text if element.text else ''
+    parsed_element.append(text)
 
-        if text:
-            parsed_element.append(text)
+    for child in element.iterchildren():
+        child_content = parse_textual_element(child)
+        if child_content:
+            parsed_element.append(child_content)
 
-        # The text following this element until the next child element.
-        tail = child.tail
-        if tail:
-            parsed_element.append(tail)
+    element_content = ''.join(parsed_element).strip()
+    if element_content:
+        element_content = formatter(element_content)
 
-    return ''.join(parsed_element).strip()
+    # The text following this element until the next sibling or end of parent
+    # element.
+    tail = element.tail if element.tail else ''
+    element_content += tail
+
+    return element_content
 
 
 def parse_unordered_list(element):
