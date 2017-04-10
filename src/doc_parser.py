@@ -1,6 +1,7 @@
 
 import lxml.html as html
 import re
+import terminaltables
 
 from formatting import header, strong, code, pre
 
@@ -23,6 +24,8 @@ def parse(html_doc_file):
 
         if element.tag in LIST_ELEMENTS:
             parsed_element = parse_list_element(element)
+        elif element.tag == 'table':
+            parsed_element = parse_table(element)
         elif element.tag == 'pre':
             parsed_element = parse_pre(element)
         else:
@@ -94,3 +97,28 @@ def parse_list_element(element):
 
 def parse_pre(element):
     return pre(element.text_content())
+
+
+def parse_table(element):
+    table_data = []
+    for row in element.iter('tr'):
+        row_content = parse_table_row(row)
+        table_data.append(row_content)
+
+    table = terminaltables.SingleTable(table_data).table
+    return table
+
+
+def parse_table_row(row_element):
+    row_data = []
+    for cell in row_element.iter(['td', 'th']):
+        cell_content = parse_table_cell(cell)
+        row_data.append(cell_content)
+    return row_data
+
+
+def parse_table_cell(cell_element):
+    cell_content = parse_textual_element(cell_element)
+    if cell_element.tag == 'th':
+        cell_content = strong(cell_content)
+    return cell_content

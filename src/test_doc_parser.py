@@ -1,6 +1,8 @@
 
 from doc_parser import parse
 from io import StringIO
+from unittest import mock
+import terminaltables
 
 from formatting import header, strong, code, pre
 
@@ -106,6 +108,39 @@ def test_parsing_nested_elements():
         '<h2>   Heading <code> Some code </code></h2>',
         [header('## Heading {}'.format(code('Some code')))]
     )
+
+
+def test_parsing_table(mocker):
+    mocker.spy(terminaltables, 'SingleTable')
+
+    html = (
+        '<table>'
+        '<tr><th>Header 1</th><th>Header 2</th></tr>'
+        '<tr><td>Data 1</td><td>Data 2</td></tr>'
+        '<tr><td><code>Some code</code></td><th>Another header</th></tr>'
+        '</table>'
+    )
+
+    expected_table_data = [
+        [strong('Header 1'), strong('Header 2')],
+        ['Data 1', 'Data 2'],
+        [code('Some code'), strong('Another header')],
+    ]
+
+    test_file = StringIO(html)
+    parse(test_file)
+
+    # Test table created with correct data (more easily debuggable than
+    # `parse_test`).
+    assert terminaltables.SingleTable.call_args_list == [
+        mock.call(expected_table_data)
+    ]
+
+    # Ensure correct table generated.
+    expected_terminal_table = terminaltables.SingleTable(
+        expected_table_data
+    ).table
+    parse_test(html, [expected_terminal_table])
 
 
 def parse_test(html, expected_parts):
