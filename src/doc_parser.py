@@ -15,8 +15,11 @@ LIST_ELEMENTS = ['ul', 'ol']
 
 
 def parse(html_doc_file):
+    parser = html.HTMLParser(encoding='utf-8')
+    parsed_doc = html.parse(html_doc_file, parser)
+
     parsed_elements = []
-    for element in html.parse(html_doc_file).find('body').iterchildren():
+    for element in parsed_doc.find('body').iterchildren():
 
         empty_text = element.text_content().strip() == ''
         if empty_text:
