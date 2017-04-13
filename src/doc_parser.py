@@ -22,19 +22,22 @@ def parse(html_doc_file):
         if empty_text:
             continue
 
-        if element.tag in LIST_ELEMENTS:
-            parsed_element = parse_list_element(element)
-        elif element.tag == 'table':
-            parsed_element = parse_table(element)
-        elif element.tag == 'pre':
-            parsed_element = parse_pre(element)
-        else:
-            parsed_element = parse_textual_element(element)
-
+        parsed_element = parse_element(element)
         if parsed_element:
             parsed_elements.append(parsed_element)
 
     return parsed_elements
+
+
+def parse_element(element):
+    if element.tag in LIST_ELEMENTS:
+        return parse_list_element(element)
+    elif element.tag == 'table':
+        return parse_table(element)
+    elif element.tag == 'pre':
+        return parse_pre(element)
+    else:
+        return parse_textual_element(element)
 
 
 def parse_textual_element(element):
@@ -55,7 +58,7 @@ def parse_textual_element(element):
     parsed_element.append(text)
 
     for child in element.iterchildren():
-        child_content = parse_textual_element(child)
+        child_content = parse_element(child)
         if child_content:
             parsed_element.append(child_content)
 

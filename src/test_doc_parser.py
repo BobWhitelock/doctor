@@ -113,12 +113,13 @@ def test_parsing_nested_elements():
 def test_parsing_table(mocker):
     mocker.spy(terminaltables, 'SingleTable')
 
+    # Wrapper div included to ensure table parsed at any level.
     html = (
-        '<table>'
+        '<div><table>'
         '<tr><th>Header 1</th><th>Header 2</th></tr>'
         '<tr><td>Data 1</td><td>Data 2</td></tr>'
         '<tr><td><code>Some code</code></td><th>Another header</th></tr>'
-        '</table>'
+        '</table></div>'
     )
 
     expected_table_data = [
