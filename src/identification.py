@@ -1,35 +1,47 @@
 
 from fuzzywuzzy import fuzz, process
-import json
 
-from constants import DOC_PATH
+import docs
 
 
 def identify(language, search_term):
-    language_docs = DOC_PATH.joinpath(language)
+    index = docs.language_index(language)
 
-    index_file = language_docs.joinpath('index.json')
-    with index_file.open() as f:
-        index = json.load(f)
-
-    index_entries = {
-        entry['name']: entry for entry in index['entries']
-    }
-
-    matches = process.extract(
-        search_term,
-        index_entries.keys(),
-        scorer=fuzz.partial_ratio,
-        processor=process_search_term,
-        limit=5,
-    )
-    print("matches:", matches)
-    match_name, _ = matches[0]
-    match = index_entries[match_name]
+    match = match_search_term(search_term, index)
 
     entry_path = match['path'].split('#')[0] + '.html'
-    doc_path = language_docs.joinpath(entry_path)
+    doc_path = docs.entry_docs_path(language, entry_path)
     return doc_path
+
+
+def match_search_term(search_term, index):
+    def do_search(extract_function, scorer, **kwargs):
+        return extract_function(
+            search_term,
+            index.keys(),
+            scorer=scorer,
+            processor=process_search_term,
+            limit=50,
+            **kwargs
+        )
+
+    matches = do_search(
+        process.extractBests,
+        fuzz.token_set_ratio,
+        score_cutoff=40
+    )
+    if not matches:
+        # If no close matches, fall back to simpler method and use those.
+        matches = do_search(process.extract, fuzz.ratio)
+
+    sorted_matches = sorted(
+        matches,
+        key=match_sort_key,
+    )
+    print("matches:", sorted_matches)  # TODO log/use this better
+
+    match_name, _ = sorted_matches[0]
+    return index[match_name]
 
 
 def process_search_term(search_term):
@@ -39,3 +51,11 @@ def process_search_term(search_term):
     non-alphanumeric characters, but we want to be able to search for `==` etc.
     """
     return search_term.lower().strip()
+
+
+def match_sort_key(match):
+    name, match_score = match
+
+    # Sort matches based on how well they match, then favour shorter matches to
+    # break ties.
+    return -match_score, len(name)

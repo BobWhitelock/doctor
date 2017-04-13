@@ -2,17 +2,13 @@
 from click import Choice
 import click
 
-from constants import DOC_PATH
+import docs
 import doc_parser
 import identification
 
 
-def available_languages():
-    return [path.name for path in DOC_PATH.iterdir() if path.is_dir()]
-
-
 @click.command()
-@click.argument('language', type=Choice(available_languages()))
+@click.argument('language', type=Choice(docs.available_languages()))
 @click.argument('search_term')
 def doctor(language, search_term):
     doc_path = identification.identify(language, search_term)
