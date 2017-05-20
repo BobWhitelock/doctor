@@ -13,6 +13,6 @@ import identification
 def doctor(language, search_term):
     docs_entry = identification.identify(language, search_term)
     with docs_entry.path.open() as f:
-        doc_parts = doc_parser.parse(f, docs_entry)
+        parsed_doc = doc_parser.parse(f, docs_entry)
 
-    click.echo('\n'.join(doc_parts))
+    click.echo(parsed_doc)

@@ -56,7 +56,7 @@ def parse(html_doc_file, docs_entry):
             if parsed_element:
                 parsed_elements.append(parsed_element)
 
-    return parsed_elements
+    return '\n'.join(parsed_elements)
 
 
 def parse_element(element):
