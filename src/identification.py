@@ -8,10 +8,7 @@ def identify(language, search_term):
     index = docs.language_index(language)
 
     match = match_search_term(search_term, index)
-
-    entry_path = match['path'].split('#')[0] + '.html'
-    doc_path = docs.entry_docs_path(language, entry_path)
-    return doc_path
+    return docs.DocsEntry(language, match['path'])
 
 
 def match_search_term(search_term, index):

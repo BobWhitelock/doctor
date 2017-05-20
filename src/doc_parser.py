@@ -2,6 +2,7 @@
 import lxml.html as html
 import re
 import terminaltables
+import docs
 
 from formatting import header, strong, code, pre
 
@@ -14,20 +15,46 @@ UNORDERED_LIST_PREFIX = '-'
 LIST_ELEMENTS = ['ul', 'ol']
 
 
-def parse(html_doc_file):
+def parse(html_doc_file, docs_entry):
     parser = html.HTMLParser(encoding='utf-8')
     parsed_doc = html.parse(html_doc_file, parser)
 
+    sibling_entry_ids = docs.sibling_entry_ids(
+        docs_entry.language, docs_entry.path
+    )
+
+    # If entry specfied with an ID start parsing from that element's parent
+    # onwards, otherwise start from the `body`.
+    if docs_entry.entry_id:
+        doc_root = parsed_doc.getroot()
+        entry_element = doc_root.get_element_by_id(docs_entry.entry_id)
+        parse_root = \
+            entry_element.getparent()
+    else:
+        parse_root = parsed_doc.find('body')
+
     parsed_elements = []
-    for element in parsed_doc.find('body').iterchildren():
+    found_element = False
+    for element in parse_root.iterchildren():
+        element_id = element.get('id')
+        if element_id == docs_entry.entry_id:
+            found_element = True
 
-        empty_text = element.text_content().strip() == ''
-        if empty_text:
-            continue
+        if found_element:
+            is_sibling_element = element_id != docs_entry.entry_id \
+                and element_id in sibling_entry_ids
+            if is_sibling_element:
+                # Only want to display from specified entry up until next
+                # sibling entry, so break once we reach this.
+                break
 
-        parsed_element = parse_element(element)
-        if parsed_element:
-            parsed_elements.append(parsed_element)
+            empty_text = element.text_content().strip() == ''
+            if empty_text:
+                continue
+
+            parsed_element = parse_element(element)
+            if parsed_element:
+                parsed_elements.append(parsed_element)
 
     return parsed_elements
 

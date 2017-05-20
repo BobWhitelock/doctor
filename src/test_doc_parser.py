@@ -3,8 +3,13 @@ from doc_parser import parse
 from io import StringIO
 from unittest import mock
 import terminaltables
+import re
 
 from formatting import header, strong, code, pre
+from docs import DocsEntry
+
+
+MOCK_DOCS_ENTRY = DocsEntry('javascript', 'javascript/Array')
 
 
 def test_parsing_headers():
@@ -129,7 +134,7 @@ def test_parsing_table(mocker):
     ]
 
     test_file = StringIO(html)
-    parse(test_file)
+    parse(test_file, MOCK_DOCS_ENTRY)
 
     # Test table created with correct data (more easily debuggable than
     # `parse_test`).
@@ -146,5 +151,24 @@ def test_parsing_table(mocker):
 
 def parse_test(html, expected_parts):
     test_file = StringIO(html)
-    parsed_file_parts = parse(test_file)
+    parsed_file_parts = parse(test_file, MOCK_DOCS_ENTRY)
     assert parsed_file_parts == expected_parts
+
+
+def test_displaying_nested_match():
+    """Test correct section of document given for an entry with an ID"""
+    docs_entry = DocsEntry('html', 'attributes#method-attribute')
+    with docs_entry.path.open() as f:
+        result = parse(f, docs_entry)[0]
+
+    # Strip formatting; just want to test correct text given.
+    assert strip_ansi_escape_sequences(result).strip() == (
+        'method <form> Defines which HTTP method to use when submitting '
+        'the form. Can be GET (default) or POST.'
+    )
+
+
+# From http://stackoverflow.com/a/38662876/2620402.
+def strip_ansi_escape_sequences(text):
+    ansi_escape_regex = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    return ansi_escape_regex.sub('', text)
