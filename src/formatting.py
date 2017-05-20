@@ -3,7 +3,7 @@ from click import style
 
 
 def header(text):
-    return style(text, bold=True, fg='yellow')
+    return style(text, bold=True, fg='green')
 
 
 def strong(text):
