@@ -9,9 +9,10 @@ import identification
 
 
 @click.command()
-@click.argument('doc_set', type=Choice(docset.available()))
+@click.argument('doc_set', type=Choice(docset.available_identifiers()))
 @click.argument('search_term')
 def doctor(doc_set, search_term):
+    doc_set = docset.from_identifier(doc_set)
     docs_entry = identification.identify(doc_set, search_term)
     with docs_entry.path.open() as f:
         parsed_doc = doc_parser.parse(f, docs_entry)
