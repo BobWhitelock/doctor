@@ -16,6 +16,6 @@ pytest-mock==1.6.0
 python-Levenshtein==0.12.0
 simplegeneric==0.8.1
 six==1.10.0
-terminaltables==3.1.0
+-e git+https://github.com/BobWhitelock/terminaltables.git@2374ae57b8819adc57be5644799fc61cc8e2bf65#egg=terminaltables
 traitlets==4.3.2
 wcwidth==0.1.7

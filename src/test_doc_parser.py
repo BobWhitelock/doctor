@@ -108,7 +108,7 @@ def test_parsing_nested_elements():
 
 
 def test_parsing_table(mocker):
-    mocker.spy(terminaltables, 'SingleTable')
+    mocker.spy(terminaltables, 'UnicodeSingleTable')
 
     # Wrapper div included to ensure table parsed at any level.
     html = (
@@ -130,12 +130,12 @@ def test_parsing_table(mocker):
 
     # Test table created with correct data (more easily debuggable than
     # `parse_test`).
-    assert terminaltables.SingleTable.call_args_list == [
+    assert terminaltables.UnicodeSingleTable.call_args_list == [
         mock.call(expected_table_data)
     ]
 
     # Ensure correct table generated.
-    expected_terminal_table = terminaltables.SingleTable(
+    expected_terminal_table = terminaltables.UnicodeSingleTable(
         expected_table_data
     ).table
     parse_test(html, expected_terminal_table)

@@ -131,7 +131,7 @@ def parse_table(element):
         row_content = parse_table_row(row)
         table_data.append(row_content)
 
-    table = terminaltables.SingleTable(table_data).table
+    table = terminaltables.UnicodeSingleTable(table_data).table
     return table
 
 
