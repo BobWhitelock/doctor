@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eo pipefail
+IFS=$'\n\t'
+
+script_dir="$(dirname "$(readlink -f "$0")")"
+(cd "$script_dir/.." && . venv/bin/activate && src/doctor "$@")
