@@ -2,14 +2,14 @@
 from fuzzywuzzy import fuzz, process
 
 import docset
-import docs
+from docsentry import DocsEntry
 
 
 def identify(language, search_term):
     index = docset.language_index(language)
 
     match = match_search_term(search_term, index)
-    return docs.DocsEntry(language, match['path'])
+    return DocsEntry(language, match['path'])
 
 
 def match_search_term(search_term, index):

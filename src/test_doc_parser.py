@@ -6,7 +6,7 @@ import terminaltables
 import re
 
 from formatting import header, strong, code, pre
-from docs import DocsEntry
+from docsentry import DocsEntry
 
 
 MOCK_DOCS_ENTRY = DocsEntry('javascript', 'javascript/Array')
