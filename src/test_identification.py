@@ -1,9 +1,9 @@
 
 from fuzzywuzzy import process
 
-from docs import PATH
+from docset import PATH
 from identification import identify
-import docs
+import docset
 
 
 def test_basic_identification_1():
@@ -52,7 +52,7 @@ def test_favours_shorter_matches(monkeypatch):
         ]
     )
     monkeypatch.setattr(
-        docs, 'language_index',
+        docset, 'language_index',
         lambda l: {
             'thing': {
                 'path': 'path/for/thing',

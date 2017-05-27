@@ -1,11 +1,8 @@
 
-from pathlib import Path
-import json
 from autorepr import autorepr
 from functools import lru_cache
 
-
-PATH = Path('/home/bob/repos/devdocs/public/docs')
+import docset
 
 
 class DocsEntry:
@@ -37,7 +34,7 @@ class DocsEntry:
     # if have to keep recalculating.
     @lru_cache()
     def _sibling_entry_ids(self):
-        index = language_index(self.language)
+        index = docset.language_index(self.language)
 
         entry_ids = []
         for entry in index.values():
@@ -48,24 +45,4 @@ class DocsEntry:
         return entry_ids
 
     def _entry_docs_path(self, entry_path):
-        return language_docs_path(self.language).joinpath(entry_path)
-
-
-def available_languages():
-    return [path.name for path in PATH.iterdir() if path.is_dir()]
-
-
-def language_index(language):
-    """Get dict of entry names to data for given language"""
-    index_file = language_docs_path(language).joinpath('index.json')
-    with index_file.open() as f:
-        index = json.load(f)
-
-    index_entries = {
-        entry['name']: entry for entry in index['entries']
-    }
-    return index_entries
-
-
-def language_docs_path(language):
-    return PATH.joinpath(language)
+        return docset.language_docs_path(self.language).joinpath(entry_path)
