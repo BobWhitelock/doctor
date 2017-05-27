@@ -52,7 +52,7 @@ def test_favours_shorter_matches(monkeypatch):
         ]
     )
     monkeypatch.setattr(
-        docset, 'language_index',
+        docset, 'index',
         lambda l: {
             'thing': {
                 'path': 'path/for/thing',

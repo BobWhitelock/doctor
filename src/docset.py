@@ -5,13 +5,13 @@ import json
 PATH = Path('/home/bob/repos/devdocs/public/docs')
 
 
-def available_languages():
+def available():
     return [path.name for path in PATH.iterdir() if path.is_dir()]
 
 
-def language_index(language):
-    """Get dict of entry names to data for given language"""
-    index_file = language_docs_path(language).joinpath('index.json')
+def index(doc_set):
+    """Get dict of entry names to data for given doc set"""
+    index_file = path(doc_set).joinpath('index.json')
     with index_file.open() as f:
         index = json.load(f)
 
@@ -21,5 +21,5 @@ def language_index(language):
     return index_entries
 
 
-def language_docs_path(language):
-    return PATH.joinpath(language)
+def path(doc_set):
+    return PATH.joinpath(doc_set)

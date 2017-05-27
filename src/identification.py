@@ -5,11 +5,11 @@ import docset
 from docsentry import DocsEntry
 
 
-def identify(language, search_term):
-    index = docset.language_index(language)
+def identify(doc_set_name, search_term):
+    index = docset.index(doc_set_name)
 
     match = match_search_term(search_term, index)
-    return DocsEntry(language, match['path'])
+    return DocsEntry(doc_set_name, match['path'])
 
 
 def match_search_term(search_term, index):

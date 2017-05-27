@@ -7,8 +7,8 @@ import docset
 
 class DocsEntry:
 
-    def __init__(self, language, path):
-        self.language = language
+    def __init__(self, doc_set, path):
+        self.doc_set = doc_set
 
         if '#' in path:
             base_path, self.entry_id = path.split('#')
@@ -17,7 +17,7 @@ class DocsEntry:
 
         self.path = self._entry_docs_path(base_path + '.html')
 
-    __repr__ = autorepr(['language', 'path', 'entry_id'])
+    __repr__ = autorepr(['doc_set', 'path', 'entry_id'])
 
     def is_sibling_id(self, entry_id):
         """The given entry_id is for another entry in the same document as this
@@ -34,15 +34,15 @@ class DocsEntry:
     # if have to keep recalculating.
     @lru_cache()
     def _sibling_entry_ids(self):
-        index = docset.language_index(self.language)
+        index = docset.index(self.doc_set)
 
         entry_ids = []
         for entry in index.values():
-            docs_entry = DocsEntry(self.language, entry['path'])
+            docs_entry = DocsEntry(self.doc_set, entry['path'])
             if docs_entry.path == self.path and docs_entry.entry_id:
                 entry_ids.append(docs_entry.entry_id)
 
         return entry_ids
 
     def _entry_docs_path(self, entry_path):
-        return docset.language_docs_path(self.language).joinpath(entry_path)
+        return docset.path(self.doc_set).joinpath(entry_path)

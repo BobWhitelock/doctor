@@ -9,10 +9,10 @@ import identification
 
 
 @click.command()
-@click.argument('language', type=Choice(docset.available_languages()))
+@click.argument('doc_set', type=Choice(docset.available()))
 @click.argument('search_term')
-def doctor(language, search_term):
-    docs_entry = identification.identify(language, search_term)
+def doctor(doc_set, search_term):
+    docs_entry = identification.identify(doc_set, search_term)
     with docs_entry.path.open() as f:
         parsed_doc = doc_parser.parse(f, docs_entry)
 
