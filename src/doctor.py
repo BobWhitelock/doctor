@@ -17,10 +17,10 @@ def doctor(doc_set, search_term):
     with docs_entry.path.open() as f:
         parsed_doc = doc_parser.parse(f, docs_entry)
 
-    echo_maybe_via_pager(parsed_doc)
+    _echo_maybe_via_pager(parsed_doc)
 
 
-def echo_maybe_via_pager(text):
+def _echo_maybe_via_pager(text):
     """Output text via pager or without, depending on terminal size."""
     fallback_terminal_size = (80, 20)
     _columns, lines = shutil.get_terminal_size(fallback_terminal_size)

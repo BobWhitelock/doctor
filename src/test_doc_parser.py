@@ -13,7 +13,7 @@ MOCK_DOCS_ENTRY = DocsEntry('javascript', 'javascript/Array')
 
 
 def test_parsing_headers():
-    parse_test(
+    _parse_test(
         '<h1>First</h1><h2>Second</h2><h5>Fifth</h5>',
         '\n'.join([
             header('# First'),
@@ -24,7 +24,7 @@ def test_parsing_headers():
 
 
 def test_parsing_paragraph():
-    parse_test(
+    _parse_test(
         '<p>Here is a paragraph with some <strong>bold</strong> text</p>'
         '<p>Here is a paragraph with some <code>inline code</code></p>'
         '<p>Another kind of bold text: <em>like this</em></p>',
@@ -37,7 +37,7 @@ def test_parsing_paragraph():
 
 
 def test_parsing_unordered_list():
-    parse_test(
+    _parse_test(
         '<ul>'
         '<li>First</li>'
         '<li>Second</li>'
@@ -48,7 +48,7 @@ def test_parsing_unordered_list():
 
 
 def test_parsing_ordered_list():
-    parse_test(
+    _parse_test(
         '<ol>'
         '<li>First</li>'
         '<li>Second</li>'
@@ -59,21 +59,21 @@ def test_parsing_ordered_list():
 
 
 def test_other_element_parsed_as_text():
-    parse_test(
+    _parse_test(
         '<nav>Some element without <strong>special</strong> handling</nav>',
         'Some element without {} handling'.format(strong('special'))
     )
 
 
 def test_parsing_pre():
-    parse_test(
+    _parse_test(
         '<pre>//Some code: x+y == z</pre>',
         pre('//Some code: x+y == z')
     )
 
 
 def test_parsing_empty_elements():
-    parse_test(
+    _parse_test(
         '<code></code>'
         '<pre></pre>'
         '<pre>    </pre>'
@@ -82,26 +82,26 @@ def test_parsing_empty_elements():
     )
 
     # `strong` is empty so should not appear, but following text should.
-    parse_test(
+    _parse_test(
         '<p>  <strong></strong>  stuff<p>',
         'stuff'
     )
 
-    parse_test(
+    _parse_test(
         '<h1>Stuff <strong></strong><h1>',
         header('# Stuff')
     )
 
 
 def test_parsing_nested_elements():
-    parse_test(
+    _parse_test(
         '<p><code>'
         '<strong>expr1</strong> && <strong>expr2</strong>'
         '</code></p>',
         code('{} && {}'.format(strong('expr1'), strong('expr2')))
     )
 
-    parse_test(
+    _parse_test(
         '<h2>   Heading <code> Some code </code></h2>',
         header('## Heading {}'.format(code('Some code')))
     )
@@ -129,7 +129,7 @@ def test_parsing_table(mocker):
     parse(test_file, MOCK_DOCS_ENTRY)
 
     # Test table created with correct data (more easily debuggable than
-    # `parse_test`).
+    # `_parse_test`).
     assert terminaltables.UnicodeSingleTable.call_args_list == [
         mock.call(expected_table_data)
     ]
@@ -138,10 +138,10 @@ def test_parsing_table(mocker):
     expected_terminal_table = terminaltables.UnicodeSingleTable(
         expected_table_data
     ).table
-    parse_test(html, expected_terminal_table)
+    _parse_test(html, expected_terminal_table)
 
 
-def parse_test(html, expected_parts):
+def _parse_test(html, expected_parts):
     test_file = StringIO(html)
     parsed_file_parts = parse(test_file, MOCK_DOCS_ENTRY)
     assert parsed_file_parts == expected_parts
@@ -154,13 +154,13 @@ def test_displaying_nested_match():
         result = parse(f, docs_entry)
 
     # Strip formatting; just want to test correct text given.
-    assert strip_ansi_escape_sequences(result).strip() == (
+    assert _strip_ansi_escape_sequences(result).strip() == (
         'method <form> Defines which HTTP method to use when submitting '
         'the form. Can be GET (default) or POST.'
     )
 
 
 # From http://stackoverflow.com/a/38662876/2620402.
-def strip_ansi_escape_sequences(text):
+def _strip_ansi_escape_sequences(text):
     ansi_escape_regex = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
     return ansi_escape_regex.sub('', text)

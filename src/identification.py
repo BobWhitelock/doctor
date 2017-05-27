@@ -8,17 +8,17 @@ from docsentry import DocsEntry
 def identify(doc_set_name, search_term):
     index = docset.index(doc_set_name)
 
-    match = match_search_term(search_term, index)
+    match = _match_search_term(search_term, index)
     return DocsEntry(doc_set_name, match['path'])
 
 
-def match_search_term(search_term, index):
+def _match_search_term(search_term, index):
     def do_search(extract_function, scorer, **kwargs):
         return extract_function(
             search_term,
             index.keys(),
             scorer=scorer,
-            processor=process_search_term,
+            processor=_process_search_term,
             limit=50,
             **kwargs
         )
@@ -34,7 +34,7 @@ def match_search_term(search_term, index):
 
     sorted_matches = sorted(
         matches,
-        key=match_sort_key,
+        key=_match_sort_key,
     )
     print("matches:", sorted_matches)  # TODO log/use this better
 
@@ -42,7 +42,7 @@ def match_search_term(search_term, index):
     return index[match_name]
 
 
-def process_search_term(search_term):
+def _process_search_term(search_term):
     """Simple processor for search term
 
     Needed as default processor (`fuzzywuzzy.utils.full_process`) strips all
@@ -51,7 +51,7 @@ def process_search_term(search_term):
     return search_term.lower().strip()
 
 
-def match_sort_key(match):
+def _match_sort_key(match):
     name, match_score = match
 
     # Sort matches based on how well they match, then favour shorter matches to

@@ -45,31 +45,31 @@ def parse(html_doc_file, docs_entry):
             if empty_text:
                 continue
 
-            parsed_element = parse_element(element)
+            parsed_element = _parse_element(element)
             if parsed_element:
                 parsed_elements.append(parsed_element)
 
     return '\n'.join(parsed_elements)
 
 
-def parse_element(element):
+def _parse_element(element):
     if element.tag in LIST_ELEMENTS:
-        return parse_list_element(element)
+        return _parse_list_element(element)
     elif element.tag == 'table':
-        return parse_table(element)
+        return _parse_table(element)
     elif element.tag == 'pre':
-        return parse_pre(element)
+        return _parse_pre(element)
     else:
-        return parse_textual_element(element)
+        return _parse_textual_element(element)
 
 
-def parse_textual_element(element):
+def _parse_textual_element(element):
     parsed_element = []
 
     header_match = re.fullmatch(HEADER_REGEX, element.tag)
     if header_match:
         header_number = int(header_match.group(1))
-        formatter = create_header_formatter(header_number)
+        formatter = _create_header_formatter(header_number)
     elif element.tag in ['strong', 'em']:
         formatter = strong
     elif element.tag == 'code':
@@ -81,7 +81,7 @@ def parse_textual_element(element):
     parsed_element.append(text)
 
     for child in element.iterchildren():
-        child_content = parse_element(child)
+        child_content = _parse_element(child)
         if child_content:
             parsed_element.append(child_content)
 
@@ -97,7 +97,7 @@ def parse_textual_element(element):
     return element_content
 
 
-def create_header_formatter(header_number):
+def _create_header_formatter(header_number):
     def formatter(text):
         prefix = HEADER_PREFIX * header_number
         return header(prefix + ' ' + text)
@@ -105,7 +105,7 @@ def create_header_formatter(header_number):
     return formatter
 
 
-def parse_list_element(element):
+def _parse_list_element(element):
     if element.tag == 'ul':
         prefix = lambda index: UNORDERED_LIST_PREFIX  # noqa
     else:
@@ -115,36 +115,36 @@ def parse_list_element(element):
 
     for index, child in enumerate(element.iter('li')):
         parsed_element.append(
-            prefix(index) + ' ' + parse_textual_element(child)
+            prefix(index) + ' ' + _parse_textual_element(child)
         )
 
     return '\n'.join(parsed_element)
 
 
-def parse_pre(element):
+def _parse_pre(element):
     return pre(element.text_content())
 
 
-def parse_table(element):
+def _parse_table(element):
     table_data = []
     for row in element.iter('tr'):
-        row_content = parse_table_row(row)
+        row_content = _parse_table_row(row)
         table_data.append(row_content)
 
     table = terminaltables.UnicodeSingleTable(table_data).table
     return table
 
 
-def parse_table_row(row_element):
+def _parse_table_row(row_element):
     row_data = []
     for cell in row_element.iter(['td', 'th']):
-        cell_content = parse_table_cell(cell)
+        cell_content = _parse_table_cell(cell)
         row_data.append(cell_content)
     return row_data
 
 
-def parse_table_cell(cell_element):
-    cell_content = parse_textual_element(cell_element)
+def _parse_table_cell(cell_element):
+    cell_content = _parse_textual_element(cell_element)
     if cell_element.tag == 'th':
         cell_content = strong(cell_content)
     return cell_content
