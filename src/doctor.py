@@ -4,6 +4,8 @@ import click
 import shutil
 from flask import Flask
 from http import HTTPStatus
+from multiprocessing import Process
+import sys
 
 import docset
 import doc_parser
@@ -12,6 +14,7 @@ import exceptions
 
 
 doctor_server = Flask(__name__)
+results_process = None
 
 
 @click.group()
@@ -37,7 +40,7 @@ def server():
 def search_route(doc_set, search_term):
     try:
         doc = _perform_search(doc_set, search_term)
-        click.echo_via_pager(doc)
+        _display_server_search_result(doc)
         return '', HTTPStatus.NO_CONTENT
     except exceptions.UnknownDocSetException:
         response = 'Unknown doc set: {}'.format(doc_set)
@@ -66,3 +69,32 @@ def _echo_maybe_via_pager(text):
         click.echo_via_pager(text)
     else:
         click.echo(text)
+
+
+def _display_server_search_result(doc):
+    _kill_any_existing_results_process()
+    _start_results_process(doc)
+
+
+def _kill_any_existing_results_process():
+    global results_process
+    if results_process and results_process.is_alive():
+        results_process.terminate()
+
+
+def _start_results_process(doc):
+    global results_process
+    results_process = Process(
+        target=_search_result_process,
+        args=(doc,),
+        daemon=True,
+    )
+    results_process.start()
+
+
+def _search_result_process(doc):
+    # Need to re-open stdin first, since starting a new process closes this and
+    # `echo_via_pager` will not use pager if both `stdin` and `stdout` are not
+    # ttys. Ref: https://stackoverflow.com/a/30149635.
+    sys.stdin = open(0)
+    click.echo_via_pager(doc)
