@@ -3,10 +3,10 @@ from doc_parser import parse
 from io import StringIO
 from unittest import mock
 import terminaltables
-import re
 
 from formatting import header, strong, code, pre
 from docsentry import DocsEntry
+import utils
 
 
 MOCK_DOCS_ENTRY = DocsEntry('javascript', 'javascript/Array')
@@ -154,13 +154,7 @@ def test_displaying_nested_match():
         result = parse(f, docs_entry)
 
     # Strip formatting; just want to test correct text given.
-    assert _strip_ansi_escape_sequences(result).strip() == (
+    assert utils.strip_ansi_escape_sequences(result).strip() == (
         'method <form> Defines which HTTP method to use when submitting '
         'the form. Can be GET (default) or POST.'
     )
-
-
-# From http://stackoverflow.com/a/38662876/2620402.
-def _strip_ansi_escape_sequences(text):
-    ansi_escape_regex = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-    return ansi_escape_regex.sub('', text)
