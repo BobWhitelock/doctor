@@ -8,10 +8,16 @@ import doc_parser
 import identification
 
 
-@click.command()
+@click.group()
+def doctor():
+    pass
+
+
+# TODO: Make this the default command.
+@doctor.command()
 @click.argument('doc_set', type=Choice(docset.available_identifiers()))
 @click.argument('search_term')
-def doctor(doc_set, search_term):
+def search(doc_set, search_term):
     doc_set = docset.from_identifier(doc_set)
     docs_entry = identification.identify(doc_set, search_term)
     with docs_entry.path.open() as f:
