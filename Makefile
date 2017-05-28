@@ -8,3 +8,7 @@ test:
 .PHONY: ipython
 ipython:
 	. venv/bin/activate && ipython
+
+.PHONY: freeze
+freeze:
+	. venv/bin/activate && pip freeze > requirements.txt
