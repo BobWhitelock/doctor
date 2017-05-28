@@ -10,6 +10,7 @@ import doc_parser
 import identification
 import exceptions
 import click_adaptations
+import utils
 
 
 doctor_server = Flask(__name__)
@@ -55,16 +56,13 @@ def _perform_search(doc_set, search_term):
 
 def _echo_maybe_via_pager(text):
     """Output text via pager or without, depending on terminal size."""
-    fallback_terminal_size = (80, 20)
-    _columns, lines = shutil.get_terminal_size(fallback_terminal_size)
 
     # Still want to output via pager if text is almost at terminal size, to
     # account for lines for prompt and feels better.
     buffer_lines = 4
 
-    text_lines = len(text.splitlines())
-
-    if lines - buffer_lines < text_lines:
+    longer_than_terminal = _lines_greater_than_terminal_size(text)
+    if longer_than_terminal + buffer_lines > 0:
         click.echo_via_pager(text)
     else:
         click.echo(text)
@@ -75,3 +73,17 @@ def _display_server_search_result(doc):
     if results_pager_process:
         results_pager_process.terminate()
     results_pager_process = click_adaptations.echo_via_pager_non_blocking(doc)
+
+
+def _lines_greater_than_terminal_size(text):
+    terminal = _terminal_size()
+    return utils.lines_greater_than_terminal_size(
+        text=text,
+        columns=terminal.columns,
+        lines=terminal.lines
+    )
+
+
+def _terminal_size():
+    fallback_terminal_size = (80, 20)
+    return shutil.get_terminal_size(fallback_terminal_size)
