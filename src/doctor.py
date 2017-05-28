@@ -58,7 +58,7 @@ def _echo_maybe_via_pager(text):
 
     # Still want to output via pager if text is almost at terminal size, to
     # account for lines for prompt and feels better.
-    buffer_lines = 3
+    buffer_lines = 4
 
     text_lines = len(text.splitlines())
 
