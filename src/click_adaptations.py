@@ -1,13 +1,23 @@
 
 import os
 import sys
+import shlex
 
 from click.globals import resolve_color_default
 from click._compat import _default_text_stdout, text_type, string_types, \
     isatty, WIN, strip_ansi, get_best_encoding, open_stream
 
 
-def echo_via_pager(text, color=None):
+# This file copied and adapted from `click/termui.py` and
+# `click/_termui_impl.py` in
+# https://github.com/pallets/click/tree/e634d7f78b906294fd21fb8b166fa4a71746b76b,
+# as for `doctor server` want to gain access to the underlying
+# `subprocess.Popen` instance for the pager so can kill this directly when
+# needed, and this is not possible using the existing Click `echo_via_pager`
+# function.
+
+
+def echo_via_pager_non_blocking(text, color=None):
     """This function takes a text and shows it via an environment specific
     pager on stdout.
 
@@ -21,7 +31,6 @@ def echo_via_pager(text, color=None):
     color = resolve_color_default(color)
     if not isinstance(text, string_types):
         text = text_type(text)
-    from ._termui_impl import pager
     return pager(text + '\n', color)
 
 
@@ -74,14 +83,15 @@ def _pipepager(text, cmd, color):
     if not color:
         text = strip_ansi(text)
 
-    c = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-                         env=env)
+    c = subprocess.Popen(shlex.split(cmd), stdin=subprocess.PIPE, env=env)
     encoding = get_best_encoding(c.stdin)
     try:
         c.stdin.write(text.encode(encoding, 'replace'))
         c.stdin.close()
     except (IOError, KeyboardInterrupt):
         pass
+
+    return c
 
     # Less doesn't respect ^C, but catches it for its own UI purposes (aborting
     # search or other commands inside less).
@@ -91,13 +101,13 @@ def _pipepager(text, cmd, color):
     #
     # If the user wants to make the pager exit on ^C, they should set
     # `LESS='-K'`. It's not our decision to make.
-    while True:
-        try:
-            c.wait()
-        except KeyboardInterrupt:
-            pass
-        else:
-            break
+    # while True:
+    #     try:
+    #         c.wait()
+    #     except KeyboardInterrupt:
+    #         pass
+    #     else:
+    #         break
 
 
 def _tempfilepager(text, cmd, color):

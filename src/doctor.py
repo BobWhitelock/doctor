@@ -4,17 +4,16 @@ import click
 import shutil
 from flask import Flask
 from http import HTTPStatus
-from multiprocessing import Process
-import sys
 
 import docset
 import doc_parser
 import identification
 import exceptions
+import click_adaptations
 
 
 doctor_server = Flask(__name__)
-results_process = None
+results_pager_process = None
 
 
 @click.group()
@@ -72,29 +71,7 @@ def _echo_maybe_via_pager(text):
 
 
 def _display_server_search_result(doc):
-    _kill_any_existing_results_process()
-    _start_results_process(doc)
-
-
-def _kill_any_existing_results_process():
-    global results_process
-    if results_process and results_process.is_alive():
-        results_process.terminate()
-
-
-def _start_results_process(doc):
-    global results_process
-    results_process = Process(
-        target=_search_result_process,
-        args=(doc,),
-        daemon=True,
-    )
-    results_process.start()
-
-
-def _search_result_process(doc):
-    # Need to re-open stdin first, since starting a new process closes this and
-    # `echo_via_pager` will not use pager if both `stdin` and `stdout` are not
-    # ttys. Ref: https://stackoverflow.com/a/30149635.
-    sys.stdin = open(0)
-    click.echo_via_pager(doc)
+    global results_pager_process
+    if results_pager_process:
+        results_pager_process.terminate()
+    results_pager_process = click_adaptations.echo_via_pager_non_blocking(doc)
