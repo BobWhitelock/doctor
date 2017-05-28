@@ -2,10 +2,16 @@
 from click import Choice
 import click
 import shutil
+from flask import Flask
+from http import HTTPStatus
 
 import docset
 import doc_parser
 import identification
+import exceptions
+
+
+doctor_server = Flask(__name__)
 
 
 @click.group()
@@ -18,6 +24,25 @@ def doctor():
 @click.argument('doc_set', type=Choice(docset.available_identifiers()))
 @click.argument('search_term')
 def search(doc_set, search_term):
+    _perform_search(doc_set, search_term)
+
+
+@doctor.command()
+def server():
+    doctor_server.run()
+
+
+@doctor_server.route('/<doc_set>/<search_term>', methods=['POST'])
+def search_route(doc_set, search_term):
+    try:
+        _perform_search(doc_set, search_term)
+        return '', HTTPStatus.NO_CONTENT
+    except exceptions.UnknownDocSetException:
+        response = 'Unknown doc set: {}'.format(doc_set)
+        return response, HTTPStatus.BAD_REQUEST
+
+
+def _perform_search(doc_set, search_term):
     doc_set = docset.from_identifier(doc_set)
     docs_entry = identification.identify(doc_set, search_term)
     with docs_entry.path.open() as f:

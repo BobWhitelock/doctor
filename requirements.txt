@@ -1,10 +1,14 @@
 autorepr==0.3.0
 click==6.7
 decorator==4.0.11
+Flask==0.12.2
 fuzzywuzzy==0.15.0
 ipython==5.3.0
 ipython-genutils==0.2.0
+itsdangerous==0.24
+Jinja2==2.9.6
 lxml==3.7.3
+MarkupSafe==1.0
 pexpect==4.2.1
 pickleshare==0.7.4
 prompt-toolkit==1.0.14
@@ -16,6 +20,7 @@ pytest-mock==1.6.0
 python-Levenshtein==0.12.0
 simplegeneric==0.8.1
 six==1.10.0
--e git+https://github.com/BobWhitelock/terminaltables.git@2374ae57b8819adc57be5644799fc61cc8e2bf65#egg=terminaltables
+-e git+https://github.com/BobWhitelock/terminaltables.git@6eeb4105a7b117e83a1b266b5a815a991862a65f#egg=terminaltables
 traitlets==4.3.2
 wcwidth==0.1.7
+Werkzeug==0.12.2

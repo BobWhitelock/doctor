@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 
 import utils
+import exceptions
 
 PATH = Path('/home/bob/repos/devdocs/public/docs')
 
@@ -20,7 +21,10 @@ def available_identifiers():
 
 def from_identifier(identifier):
     """Return the corresponding doc set name given a valid identifier."""
-    return _identifiers_to_doc_sets()[identifier]
+    try:
+        return _identifiers_to_doc_sets()[identifier]
+    except KeyError:
+        raise exceptions.UnknownDocSetException()
 
 
 def _identifiers_to_doc_sets():
