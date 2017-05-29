@@ -39,8 +39,9 @@ def search(doc_set, search_term):
 
 
 @doctor.command()
-def server():
-    doctor_server.run()
+@click.option('--port', '-p', type=int, default=7070)
+def server(port):
+    doctor_server.run(port=port)
 
 
 @doctor_server.route('/<doc_set>/<search_term>', methods=['POST'])
