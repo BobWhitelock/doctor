@@ -3,13 +3,19 @@ from fuzzywuzzy import fuzz, process
 
 import docset
 from docsentry import DocsEntry
+from utils import debug
 
 
 def identify(doc_set_name, search_term):
     index = docset.index(doc_set_name)
 
     match = _match_search_term(search_term, index)
-    return DocsEntry(doc_set_name, match['path'])
+    debug('Identified as: %s', match)
+
+    entry = DocsEntry(doc_set_name, match['path'])
+    debug('Entry: %s', entry)
+
+    return entry
 
 
 def _match_search_term(search_term, index):
@@ -29,14 +35,15 @@ def _match_search_term(search_term, index):
         score_cutoff=40
     )
     if not matches:
-        # If no close matches, fall back to simpler method and use those.
+        debug('No close matches; falling back to simpler search method')
         matches = do_search(process.extract, fuzz.ratio)
 
     sorted_matches = sorted(
         matches,
         key=_match_sort_key,
     )
-    print("matches:", sorted_matches)  # TODO log/use this better
+
+    _log_matches(sorted_matches)
 
     match_name, _ = sorted_matches[0]
     return index[match_name]
@@ -57,3 +64,8 @@ def _match_sort_key(match):
     # Sort matches based on how well they match, then favour shorter matches to
     # break ties.
     return -match_score, len(name)
+
+
+def _log_matches(matches):
+    for match, score in matches:
+        debug('Match: %s - %s%%', match, score)

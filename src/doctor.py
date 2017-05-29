@@ -4,6 +4,8 @@ import click
 import shutil
 from flask import Flask
 from http import HTTPStatus
+import logging
+import sys
 
 import docset
 import doc_parser
@@ -18,8 +20,13 @@ results_pager_process = None
 
 
 @click.group()
-def doctor():
-    pass
+@click.option('--debug/--no-debug', '-d', default=False)
+def doctor(debug):
+    if debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging.basicConfig(stream=sys.stderr, level=level)
 
 
 # TODO: Make this the default command.

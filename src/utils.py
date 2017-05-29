@@ -1,5 +1,6 @@
 
 import re
+import logging
 
 
 def available_aliases(doc_sets, aliases_map):
@@ -44,3 +45,10 @@ def _chunks(l, n):
 
 def _flatten(list_of_lists):
     return [item for sublist in list_of_lists for item in sublist]
+
+
+def logger():
+    return logging.getLogger('doctor')
+
+
+debug = logger().debug
